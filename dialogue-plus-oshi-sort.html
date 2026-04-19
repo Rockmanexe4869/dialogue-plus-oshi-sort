@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DIALOGUE+ 推しソート</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffffcc;
+      --panel-solid: #ffffff;
+      --text: #111111;
+      --muted: #5d6470;
+      --line: #d9dfeb;
+      --accent: #111111;
+      --shadow: 0 12px 28px rgba(24, 33, 56, 0.12);
+      --radius: 22px;
+      --radius-sm: 16px;
+      --tap-scale: 0.985;
+      --max-width: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background:
+        radial-gradient(circle at top left, #ffffff 0%, #f6f7fb 45%, #eef2f9 100%);
+      color: var(--text);
+      font-family:
+        "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Meiryo",
+        system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100%;
+    }
+
+    body {
+      padding: 16px;
+    }
+
+    .app {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .shell {
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.84));
+      border: 1px solid rgba(210, 218, 233, 0.85);
+      border-radius: 28px;
+      box-shadow: 0 18px 46px rgba(33, 45, 77, 0.12);
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    .header {
+      padding: 22px 22px 14px;
+      border-bottom: 1px solid rgba(217, 223, 235, 0.9);
+      background:
+        radial-gradient(circle at 20% -30%, rgba(255, 190, 213, 0.28), transparent 30%),
+        radial-gradient(circle at 80% -10%, rgba(178, 217, 255, 0.25), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,252,255,0.9));
+    }
+
+    .header-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+      line-height: 1.1;
+      letter-spacing: 0.02em;
+      font-weight: 900;
+    }
+
+    .title-wrap p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      font-weight: 700;
+    }
+
+    .progress-box {
+      min-width: min(320px, 42vw);
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(215, 223, 239, 0.95);
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 20px rgba(27, 38, 66, 0.06);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+
+    .progress-labels .percent {
+      font-size: 1.1rem;
+    }
+
+    .progress-labels .count {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .progress-track {
+      position: relative;
+      height: 12px;
+      background: #e9eef8;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      background: linear-gradient(90deg, #8ed0ff 0%, #ffb2cf 50%, #ffe37d 100%);
+      border-radius: 999px;
+      transition: width 0.22s ease;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      padding-top: 16px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      font: inherit;
+      color: var(--text);
+      transition:
+        transform 0.14s ease,
+        box-shadow 0.18s ease,
+        opacity 0.18s ease,
+        filter 0.18s ease;
+    }
+
+    button:active {
+      transform: scale(var(--tap-scale));
+    }
+
+    .btn {
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: var(--panel-solid);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 18px rgba(19, 28, 50, 0.06);
+      font-weight: 800;
+      font-size: 0.98rem;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 20px rgba(19, 28, 50, 0.08);
+      filter: brightness(1.01);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: #111111;
+      color: #ffffff;
+      border-color: #111111;
+    }
+
+    .main {
+      padding: 18px;
+    }
+
+    .helper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 6px 16px;
+      color: var(--muted);
+      font-weight: 700;
+      text-align: center;
+      font-size: 0.96rem;
+    }
+
+    .compare-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 176px minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .member-card {
+      position: relative;
+      min-height: 430px;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 28px;
+      overflow: hidden;
+      padding: 18px;
+      text-align: left;
+      box-shadow: var(--shadow);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .member-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(24, 33, 56, 0.16);
+    }
+
+    .member-card:focus-visible {
+      outline: 4px solid rgba(17,17,17,0.28);
+      outline-offset: 2px;
+    }
+
+    .member-card::before,
+    .member-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .member-card::before {
+      background:
+        radial-gradient(circle at 16% 18%, rgba(255,255,255,0.22) 0 3px, transparent 3px 100%),
+        radial-gradient(circle at 28% 26%, rgba(255,255,255,0.18) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.16) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 72% 72%, rgba(255,255,255,0.18) 0 3px, transparent 3px 100%);
+      opacity: 0.65;
+      background-size: 110px 110px, 130px 130px, 150px 150px, 170px 170px;
+    }
+
+    .member-card::after {
+      background:
+        radial-gradient(circle at 82% 14%, rgba(255,255,255,0.22), rgba(255,255,255,0) 46%),
+        radial-gradient(circle at 14% 84%, rgba(255,255,255,0.18), rgba(255,255,255,0) 42%),
+        repeating-linear-gradient(
+          135deg,
+          rgba(255,255,255,0.11) 0 9px,
+          rgba(255,255,255,0) 9px 22px
+        );
+      mix-blend-mode: soft-light;
+      opacity: 0.72;
+    }
+
+    .card-top,
+    .card-bottom,
+    .card-center {
+      position: relative;
+      z-index: 1;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.30);
+      backdrop-filter: blur(3px);
+      border: 1px solid rgba(0,0,0,0.08);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .initial {
+      font-size: clamp(2.6rem, 7vw, 4.8rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      opacity: 0.9;
+      margin-bottom: 10px;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    .name {
+      font-size: clamp(2rem, 5.5vw, 3.35rem);
+      line-height: 1.05;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .ruby {
+      margin-top: 10px;
+      font-size: clamp(0.98rem, 2vw, 1.08rem);
+      font-weight: 800;
+      opacity: 0.88;
+      letter-spacing: 0.04em;
+    }
+
+    .choose-hint {
+      font-size: 0.95rem;
+      font-weight: 800;
+      opacity: 0.82;
+    }
+
+    .center-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+      align-items: stretch;
+      min-height: 430px;
+    }
+
+    .tie-btn {
+      min-height: 92px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #ffffff, #f6f8fd);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 24px rgba(25, 35, 60, 0.08);
+      font-size: 1.15rem;
+      font-weight: 900;
+      padding: 16px;
+    }
+
+    .tie-btn small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .center-note {
+      background: rgba(255,255,255,0.8);
+      border: 1px dashed #cfd7e6;
+      border-radius: 18px;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .result-view {
+      display: none;
+      padding: 18px;
+    }
+
+    .result-view.active {
+      display: block;
+    }
+
+    .result-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .result-title h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .result-title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .ranking-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .rank-item {
+      position: relative;
+      border-radius: 22px;
+      padding: 16px 18px;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 10px 22px rgba(26, 34, 58, 0.08);
+      overflow: hidden;
+    }
+
+    .rank-item.first {
+      padding: 20px 20px;
+      box-shadow: 0 16px 30px rgba(26, 34, 58, 0.14);
+    }
+
+    .rank-item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 86% 18%, rgba(255,255,255,0.24), transparent 42%),
+        repeating-linear-gradient(
+          135deg,
+          rgba(255,255,255,0.10) 0 9px,
+          rgba(255,255,255,0) 9px 20px
+        );
+      pointer-events: none;
+    }
+
+    .rank-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .rank-no {
+      min-width: 64px;
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: 900;
+    }
+
+    .rank-name {
+      font-size: clamp(1.25rem, 2.8vw, 1.7rem);
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .rank-item.first .rank-name {
+      font-size: clamp(1.4rem, 3.3vw, 2rem);
+    }
+
+    .rank-meta {
+      font-size: 0.92rem;
+      font-weight: 800;
+      opacity: 0.78;
+    }
+
+    .text-panel {
+      background: var(--panel-solid);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 10px 22px rgba(24, 33, 56, 0.06);
+    }
+
+    .text-panel h3 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+      font-weight: 900;
+    }
+
+    .copy-box {
+      width: 100%;
+      min-height: 318px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      font: inherit;
+      line-height: 1.65;
+      color: var(--text);
+      background: #fafcff;
+    }
+
+    .copy-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .members-config-panel {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .members-config-panel summary {
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 0.98rem;
+      list-style: none;
+    }
+
+    .members-config-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .members-config-panel summary::before {
+      content: "▸";
+      display: inline-block;
+      margin-right: 8px;
+      transition: transform 0.18s ease;
+    }
+
+    .members-config-panel[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .member-checks {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
+      margin-top: 14px;
+    }
+
+    .member-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid #dde5f2;
+      font-weight: 800;
+    }
+
+    .member-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: #111111;
+      flex: 0 0 auto;
+    }
+
+    .member-check .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.12);
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 920px) {
+      .header-top {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-box {
+        min-width: 0;
+      }
+
+      .compare-layout {
+        grid-template-columns: minmax(0, 1fr) 124px minmax(0, 1fr);
+      }
+
+      .member-card,
+      .center-actions {
+        min-height: 390px;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 18px 14px 12px;
+      }
+
+      .main,
+      .result-view {
+        padding: 12px;
+      }
+
+      .compare-layout {
+        grid-template-columns: minmax(0, 1fr) 94px minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .member-card {
+        min-height: 350px;
+        padding: 14px;
+        border-radius: 22px;
+      }
+
+      .center-actions {
+        min-height: 350px;
+        gap: 8px;
+      }
+
+      .tie-btn {
+        min-height: 86px;
+        border-radius: 18px;
+        font-size: 1rem;
+        padding: 12px 10px;
+      }
+
+      .center-note {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+        border-radius: 14px;
+      }
+
+      .tag {
+        font-size: 0.78rem;
+        padding: 7px 10px;
+      }
+
+      .name {
+        font-size: clamp(1.35rem, 7vw, 2rem);
+        line-height: 1.08;
+      }
+
+      .initial {
+        font-size: clamp(2rem, 9vw, 3rem);
+      }
+
+      .ruby {
+        font-size: 0.82rem;
+      }
+
+      .btn {
+        min-height: 44px;
+        padding: 11px 14px;
+        font-size: 0.92rem;
+      }
+
+      .member-checks {
+        grid-template-columns: 1fr;
+      }
+
+      .rank-row {
+        grid-template-columns: auto 1fr;
+      }
+
+      .rank-meta {
+        grid-column: 2;
+      }
+
+      .copy-box {
+        min-height: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="shell">
+      <header class="header">
+        <div class="header-top">
+          <div class="title-wrap">
+            <h1>DIALOGUE+ 推しソート</h1>
+            <p>好きな方をタップして進めてください</p>
+          </div>
+
+          <div class="progress-box" aria-live="polite">
+            <div class="progress-labels">
+              <span class="percent" id="progressPercent">0%</span>
+              <span class="count" id="progressCount">比較: 0 / 0</span>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn btn-primary" id="resetButton" type="button">はじめから</button>
+          <button class="btn" id="memberSelectToggle" type="button">メンバー選択</button>
+          <button class="btn" id="undoButton" type="button" disabled>戻る</button>
+        </div>
+
+        <details class="members-config-panel hidden" id="memberSelectPanel">
+          <summary>比較に入れるメンバーを選ぶ</summary>
+          <div class="member-checks" id="memberChecks"></div>
+          <div class="footer-note">
+            2人以上選ぶとソートできます。変更後は自動で最初からやり直しになります。
+          </div>
+        </details>
+      </header>
+
+      <main class="main" id="compareView">
+        <div class="helper">
+          左右のカードを直接タップで選択できます / 迷ったら中央の「引き分け」
+        </div>
+
+        <div class="compare-layout">
+          <button class="member-card" id="leftCard" type="button" aria-label="左のメンバーを選ぶ">
+            <div class="card-top">
+              <div class="tag">LEFT</div>
+            </div>
+            <div class="card-center">
+              <div class="initial" id="leftInitial">YU</div>
+              <div class="name" id="leftName">内山悠里菜</div>
+              <div class="ruby" id="leftRoman">YURINA UCHIYAMA</div>
+            </div>
+            <div class="card-bottom">
+              <div class="choose-hint">タップして選択</div>
+            </div>
+          </button>
+
+          <div class="center-actions">
+            <button class="tie-btn" id="tieButton" type="button">
+              引き分け
+              <small>どちらも選べないとき</small>
+            </button>
+            <div class="center-note">
+              戻るで直前の比較をやり直せます
+            </div>
+          </div>
+
+          <button class="member-card" id="rightCard" type="button" aria-label="右のメンバーを選ぶ">
+            <div class="card-top" style="display:flex;justify-content:flex-end;">
+              <div class="tag">RIGHT</div>
+            </div>
+            <div class="card-center">
+              <div class="initial" id="rightInitial">NE</div>
+              <div class="name" id="rightName">稗田寧々</div>
+              <div class="ruby" id="rightRoman">NENE HIEDA</div>
+            </div>
+            <div class="card-bottom" style="text-align:right;">
+              <div class="choose-hint">タップして選択</div>
+            </div>
+          </button>
+        </div>
+
+        <div class="footer-note">
+          写真や宣材画像は使わず、メンバーカラーと文字だけで見やすく比較できるようにしています。
+        </div>
+      </main>
+
+      <section class="result-view" id="resultView">
+        <div class="result-header">
+          <div class="result-title">
+            <h2>ソート結果</h2>
+            <p id="resultSummary">1位から表示しています</p>
+          </div>
+          <div class="copy-actions">
+            <button class="btn btn-primary" id="retryButton" type="button">もう一度やる</button>
+            <button class="btn" id="copyButton" type="button">結果をコピー</button>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="ranking-list" id="rankingList"></div>
+
+          <div class="text-panel">
+            <h3>コピペ用テキスト</h3>
+            <textarea class="copy-box" id="resultText" readonly></textarea>
+            <div class="copy-actions">
+              <button class="btn" id="copySnsButton" type="button">SNS向け文面をコピー</button>
+            </div>
+            <div class="footer-note">
+              引き分けがある場合は同順位表示になります。SNS向け文面も自動生成します。
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /*
+      ================================
+      メンバー一覧を変える場所
+      カラーを変える場所
+      ================================
+      - name: 表示名
+      - color: カード背景色
+      - roman: ローマ字表示
+      - short: 大きく出す頭文字・略称
+      - enabled: 初期状態で比較に含めるか
+    */
+    const MEMBERS = [
+      { id: "uchiyama", name: "内山悠里菜", roman: "YURINA UCHIYAMA", short: "YU", color: "#f8c9da", enabled: true },
+      { id: "hieda", name: "稗田寧々", roman: "NENE HIEDA", short: "NE", color: "#ffe36a", enabled: true },
+      { id: "moriya", name: "守屋亨香", roman: "KYOKA MORIYA", short: "KM", color: "#95e07e", enabled: true },
+      { id: "ogata", name: "緒方佑奈", roman: "YUNA OGATA", short: "YO", color: "#79b7ff", enabled: true },
+      { id: "takamura", name: "鷹村彩花", roman: "AYAKA TAKAMURA", short: "AT", color: "#ffb25c", enabled: true },
+      { id: "miyahara", name: "SATSUKI MIYAHARA", roman: "SATSUKI MIYAHARA", short: "SM", color: "#ff78b5", enabled: true, displayName: "宮原颯希" },
+      { id: "iizuka", name: "飯塚麻結", roman: "MAYU IIZUKA", short: "MI", color: "#9bdcff", enabled: true },
+      { id: "murakami", name: "村上まなつ", roman: "MANATSU MURAKAMI", short: "MM", color: "#bb8cff", enabled: true }
+    ].map(member => ({
+      ...member,
+      displayName: member.displayName || member.name
+    }));
+
+    const els = {
+      compareView: document.getElementById("compareView"),
+      resultView: document.getElementById("resultView"),
+      progressPercent: document.getElementById("progressPercent"),
+      progressCount: document.getElementById("progressCount"),
+      progressBar: document.getElementById("progressBar"),
+      leftCard: document.getElementById("leftCard"),
+      rightCard: document.getElementById("rightCard"),
+      leftName: document.getElementById("leftName"),
+      rightName: document.getElementById("rightName"),
+      leftRoman: document.getElementById("leftRoman"),
+      rightRoman: document.getElementById("rightRoman"),
+      leftInitial: document.getElementById("leftInitial"),
+      rightInitial: document.getElementById("rightInitial"),
+      tieButton: document.getElementById("tieButton"),
+      undoButton: document.getElementById("undoButton"),
+      resetButton: document.getElementById("resetButton"),
+      retryButton: document.getElementById("retryButton"),
+      rankingList: document.getElementById("rankingList"),
+      resultText: document.getElementById("resultText"),
+      copyButton: document.getElementById("copyButton"),
+      copySnsButton: document.getElementById("copySnsButton"),
+      resultSummary: document.getElementById("resultSummary"),
+      memberSelectToggle: document.getElementById("memberSelectToggle"),
+      memberSelectPanel: document.getElementById("memberSelectPanel"),
+      memberChecks: document.getElementById("memberChecks")
+    };
+
+    const STORAGE_KEY = "dialogue_plus_oshi_sort_selection";
+
+    let enabledMap = loadEnabledMap();
+    let sorterState = null;
+
+    init();
+
+    function init() {
+      renderMemberChecks();
+      bindEvents();
+      startNewSort();
+    }
+
+    function bindEvents() {
+      els.leftCard.addEventListener("click", () => choose("left"));
+      els.rightCard.addEventListener("click", () => choose("right"));
+      els.tieButton.addEventListener("click", () => choose("tie"));
+      els.undoButton.addEventListener("click", undoLastStep);
+      els.resetButton.addEventListener("click", startNewSort);
+      els.retryButton.addEventListener("click", startNewSort);
+      els.copyButton.addEventListener("click", () => copyText(els.resultText.value, "結果をコピーしました"));
+      els.copySnsButton.addEventListener("click", () => {
+        const text = buildSnsText(sorterState?.finalRanking || []);
+        copyText(text, "SNS向け文面をコピーしました");
+      });
+      els.memberSelectToggle.addEventListener("click", () => {
+        els.memberSelectPanel.classList.toggle("hidden");
+        if (!els.memberSelectPanel.classList.contains("hidden")) {
+          els.memberSelectPanel.open = true;
+        }
+      });
+    }
+
+    function loadEnabledMap() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        const map = {};
+        MEMBERS.forEach(member => {
+          map[member.id] = typeof saved[member.id] === "boolean" ? saved[member.id] : member.enabled;
+        });
+        return map;
+      } catch {
+        const map = {};
+        MEMBERS.forEach(member => { map[member.id] = member.enabled; });
+        return map;
+      }
+    }
+
+    function saveEnabledMap() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(enabledMap));
+    }
+
+    function renderMemberChecks() {
+      els.memberChecks.innerHTML = "";
+      MEMBERS.forEach(member => {
+        const label = document.createElement("label");
+        label.className = "member-check";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = !!enabledMap[member.id];
+        input.addEventListener("change", () => {
+          enabledMap[member.id] = input.checked;
+          if (getEnabledMembers().length < 2) {
+            enabledMap[member.id] = true;
+            input.checked = true;
+            alert("最低2人は選択してください。");
+            return;
+          }
+          saveEnabledMap();
+          startNewSort();
+        });
+
+        const swatch = document.createElement("span");
+        swatch.className = "swatch";
+        swatch.style.background = member.color;
+
+        const text = document.createElement("span");
+        text.textContent = member.displayName;
+
+        label.appendChild(input);
+        label.appendChild(swatch);
+        label.appendChild(text);
+        els.memberChecks.appendChild(label);
+      });
+    }
+
+    function getEnabledMembers() {
+      return MEMBERS.filter(member => enabledMap[member.id]);
+    }
+
+    function startNewSort() {
+      const activeMembers = getEnabledMembers();
+      sorterState = createSorter(activeMembers);
+      updateProgress();
+      renderCurrentPairOrResult();
+      setCompareMode(true);
+    }
+
+    function setCompareMode(isCompare) {
+      els.compareView.classList.toggle("hidden", !isCompare);
+      els.resultView.classList.toggle("active", !isCompare);
+    }
+
+    function choose(type) {
+      if (!sorterState || sorterState.finished) return;
+
+      if (type === "left") {
+        applyChoice(sorterState.leftItem);
+      } else if (type === "right") {
+        applyChoice(sorterState.rightItem);
+      } else {
+        applyTieChoice();
+      }
+
+      updateProgress();
+      renderCurrentPairOrResult();
+    }
+
+    function applyChoice(selectedItem) {
+      sorterState.history.push(snapshotSorter(sorterState));
+
+      const currentRight = sorterState.rightRun[sorterState.rightIndex];
+      const currentLeft = sorterState.leftRun[sorterState.leftIndex];
+
+      if (selectedItem === currentLeft) {
+        sorterState.mergedCurrent.push(currentLeft);
+        sorterState.leftIndex += 1;
+      } else if (selectedItem === currentRight) {
+        sorterState.mergedCurrent.push(currentRight);
+        sorterState.rightIndex += 1;
+      }
+
+      sorterState.comparisonsDone += 1;
+      finalizeMergeProgressIfNeeded(sorterState);
+    }
+
+    function applyTieChoice() {
+      sorterState.history.push(snapshotSorter(sorterState));
+
+      const currentLeft = sorterState.leftRun[sorterState.leftIndex];
+      const currentRight = sorterState.rightRun[sorterState.rightIndex];
+
+      sorterState.tieGroups.union(currentLeft.id, currentRight.id);
+      sorterState.mergedCurrent.push(currentLeft);
+      sorterState.mergedCurrent.push(currentRight);
+      sorterState.leftIndex += 1;
+      sorterState.rightIndex += 1;
+      sorterState.comparisonsDone += 1;
+
+      finalizeMergeProgressIfNeeded(sorterState);
+    }
+
+    function finalizeMergeProgressIfNeeded(state) {
+      while (true) {
+        const leftFinished = state.leftIndex >= state.leftRun.length;
+        const rightFinished = state.rightIndex >= state.rightRun.length;
+
+        if (!leftFinished && !rightFinished) {
+          prepareCurrentPair(state);
+          return;
+        }
+
+        if (leftFinished && !rightFinished) {
+          state.mergedCurrent.push(...state.rightRun.slice(state.rightIndex));
+          state.rightIndex = state.rightRun.length;
+        }
+
+        if (rightFinished && !leftFinished) {
+          state.mergedCurrent.push(...state.leftRun.slice(state.leftIndex));
+          state.leftIndex = state.leftRun.length;
+        }
+
+        state.nextQueue.push(state.mergedCurrent);
+        state.currentMerge = null;
+
+        if (state.queue.length === 0) {
+          if (state.nextQueue.length === 1) {
+            state.finished = true;
+            state.finalRanking = buildFinalRanking(state.nextQueue[0], state.tieGroups);
+            return;
+          }
+          state.queue = state.nextQueue;
+          state.nextQueue = [];
+        }
+
+        startNextMerge(state);
+
+        if (!state.currentMerge) {
+          if (state.finished) return;
+          continue;
+        }
+        prepareCurrentPair(state);
+        return;
+      }
+    }
+
+    function undoLastStep() {
+      if (!sorterState || sorterState.history.length === 0) return;
+      const snapshot = sorterState.history.pop();
+      restoreSorter(sorterState, snapshot);
+      updateProgress();
+      renderCurrentPairOrResult();
+    }
+
+    function renderCurrentPairOrResult() {
+      els.undoButton.disabled = !sorterState || sorterState.history.length === 0;
+
+      if (!sorterState || sorterState.finished) {
+        renderResult();
+        setCompareMode(false);
+        return;
+      }
+
+      const left = sorterState.leftItem;
+      const right = sorterState.rightItem;
+      if (!left || !right) return;
+
+      renderMemberCard(els.leftCard, {
+        nameEl: els.leftName,
+        romanEl: els.leftRoman,
+        initialEl: els.leftInitial
+      }, left, "LEFT");
+
+      renderMemberCard(els.rightCard, {
+        nameEl: els.rightName,
+        romanEl: els.rightRoman,
+        initialEl: els.rightInitial
+      }, right, "RIGHT");
+
+      setCompareMode(true);
+    }
+
+    function renderMemberCard(cardEl, textRefs, member, sideText) {
+      cardEl.style.background = member.color;
+      textRefs.nameEl.textContent = member.displayName;
+      textRefs.romanEl.textContent = member.roman;
+      textRefs.initialEl.textContent = member.short;
+
+      const tag = cardEl.querySelector(".tag");
+      if (tag) tag.textContent = sideText;
+    }
+
+    function updateProgress() {
+      if (!sorterState) return;
+      const total = Math.max(sorterState.totalEstimatedComparisons, sorterState.comparisonsDone);
+      const percent = total === 0 ? 100 : Math.min(100, Math.round((sorterState.comparisonsDone / total) * 100));
+
+      els.progressPercent.textContent = `${percent}%`;
+      els.progressCount.textContent = `比較: ${sorterState.comparisonsDone} / ${total}`;
+      els.progressBar.style.width = `${percent}%`;
+
+      if (sorterState.finished) {
+        els.progressPercent.textContent = "100%";
+        els.progressBar.style.width = "100%";
+      }
+    }
+
+    function renderResult() {
+      const ranking = sorterState?.finalRanking || [];
+      els.rankingList.innerHTML = "";
+
+      ranking.forEach((group, index) => {
+        const item = document.createElement("div");
+        item.className = "rank-item" + (index === 0 ? " first" : "");
+        item.style.background = group.members[0].color;
+
+        const row = document.createElement("div");
+        row.className = "rank-row";
+
+        const rankNo = document.createElement("div");
+        rankNo.className = "rank-no";
+        rankNo.textContent = group.label;
+
+        const rankName = document.createElement("div");
+        rankName.className = "rank-name";
+        rankName.textContent = group.members.map(member => member.displayName).join(" / ");
+
+        const rankMeta = document.createElement("div");
+        rankMeta.className = "rank-meta";
+        rankMeta.textContent = group.members.length > 1 ? "引き分け同順位" : group.members[0].roman;
+
+        row.appendChild(rankNo);
+        row.appendChild(rankName);
+        row.appendChild(rankMeta);
+        item.appendChild(row);
+        els.rankingList.appendChild(item);
+      });
+
+      els.resultText.value = buildCopyText(ranking);
+      els.resultSummary.textContent = `比較回数: ${sorterState.comparisonsDone} / 対象メンバー: ${getEnabledMembers().length}人`;
+    }
+
+    function buildCopyText(ranking) {
+      const lines = ["DIALOGUE+ 推しソート結果", ""];
+      ranking.forEach(group => {
+        if (group.members.length === 1) {
+          lines.push(`${group.label} ${group.members[0].displayName}`);
+        } else {
+          lines.push(`${group.label} ${group.members.map(member => member.displayName).join(" / ")}`);
+        }
+      });
+      return lines.join("\n");
+    }
+
+    function buildSnsText(ranking) {
+      const lines = ["DIALOGUE+ 推しソート結果"];
+      ranking.forEach(group => {
+        lines.push(`${group.label} ${group.members.map(member => member.displayName).join(" / ")}`);
+      });
+      lines.push("");
+      lines.push("#DIALOGUEプラス");
+      lines.push("#推しソート");
+      return lines.join("\n");
+    }
+
+    async function copyText(text, successMessage) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert(successMessage);
+      } catch {
+        alert("コピーに失敗しました。テキストを手動で選択してください。");
+      }
+    }
+
+    function createSorter(memberList) {
+      const runs = memberList.map(member => [member]);
+      const state = {
+        queue: runs,
+        nextQueue: [],
+        currentMerge: null,
+        leftRun: [],
+        rightRun: [],
+        leftIndex: 0,
+        rightIndex: 0,
+        mergedCurrent: [],
+        leftItem: null,
+        rightItem: null,
+        comparisonsDone: 0,
+        totalEstimatedComparisons: estimateComparisons(memberList.length),
+        history: [],
+        finished: false,
+        finalRanking: [],
+        tieGroups: createUnionFind(memberList.map(member => member.id))
+      };
+
+      startNextMerge(state);
+      if (!state.finished) {
+        prepareCurrentPair(state);
+      }
+      return state;
+    }
+
+    function startNextMerge(state) {
+      if (state.queue.length >= 2) {
+        const left = state.queue.shift();
+        const right = state.queue.shift();
+
+        state.currentMerge = { left, right };
+        state.leftRun = left;
+        state.rightRun = right;
+        state.leftIndex = 0;
+        state.rightIndex = 0;
+        state.mergedCurrent = [];
+      } else if (state.queue.length === 1) {
+        state.nextQueue.push(state.queue.shift());
+        state.currentMerge = null;
+
+        if (state.queue.length === 0) {
+          if (state.nextQueue.length === 1) {
+            state.finished = true;
+            state.finalRanking = buildFinalRanking(state.nextQueue[0], state.tieGroups);
+          } else {
+            state.queue = state.nextQueue;
+            state.nextQueue = [];
+            startNextMerge(state);
+          }
+        }
+      } else {
+        state.currentMerge = null;
+      }
+    }
+
+    function prepareCurrentPair(state) {
+      if (!state.finished && state.leftIndex < state.leftRun.length && state.rightIndex < state.rightRun.length) {
+        state.leftItem = state.leftRun[state.leftIndex];
+        state.rightItem = state.rightRun[state.rightIndex];
+      } else {
+        state.leftItem = null;
+        state.rightItem = null;
+      }
+    }
+
+    function estimateComparisons(n) {
+      if (n <= 1) return 0;
+      return Math.ceil(n * Math.log2(n));
+    }
+
+    function createUnionFind(ids) {
+      const parent = new Map();
+      ids.forEach(id => parent.set(id, id));
+
+      function find(x) {
+        const p = parent.get(x);
+        if (p !== x) {
+          const root = find(p);
+          parent.set(x, root);
+          return root;
+        }
+        return p;
+      }
+
+      function union(a, b) {
+        const rootA = find(a);
+        const rootB = find(b);
+        if (rootA !== rootB) parent.set(rootB, rootA);
+      }
+
+      function exportData() {
+        return Array.from(parent.entries());
+      }
+
+      function importData(entries) {
+        parent.clear();
+        entries.forEach(([k, v]) => parent.set(k, v));
+      }
+
+      return { find, union, exportData, importData };
+    }
+
+    function buildFinalRanking(sortedList, tieGroups) {
+      const groups = [];
+      let currentRank = 1;
+
+      for (let i = 0; i < sortedList.length; i++) {
+        const current = sortedList[i];
+        if (i === 0) {
+          groups.push({
+            rank: currentRank,
+            label: `${currentRank}位`,
+            members: [current]
+          });
+          continue;
+        }
+
+        const prev = sortedList[i - 1];
+        const sameGroup = tieGroups.find(prev.id) === tieGroups.find(current.id);
+
+        if (sameGroup) {
+          groups[groups.length - 1].members.push(current);
+        } else {
+          currentRank = i + 1;
+          groups.push({
+            rank: currentRank,
+            label: `${currentRank}位`,
+            members: [current]
+          });
+        }
+      }
+
+      return groups;
+    }
+
+    function snapshotSorter(state) {
+      return {
+        queue: cloneRuns(state.queue),
+        nextQueue: cloneRuns(state.nextQueue),
+        currentMerge: state.currentMerge
+          ? { left: [...state.currentMerge.left], right: [...state.currentMerge.right] }
+          : null,
+        leftRun: [...state.leftRun],
+        rightRun: [...state.rightRun],
+        leftIndex: state.leftIndex,
+        rightIndex: state.rightIndex,
+        mergedCurrent: [...state.mergedCurrent],
+        leftItem: state.leftItem,
+        rightItem: state.rightItem,
+        comparisonsDone: state.comparisonsDone,
+        finished: state.finished,
+        finalRanking: cloneRanking(state.finalRanking),
+        tieGroupsData: state.tieGroups.exportData()
+      };
+    }
+
+    function restoreSorter(state, snapshot) {
+      state.queue = cloneRuns(snapshot.queue);
+      state.nextQueue = cloneRuns(snapshot.nextQueue);
+      state.currentMerge = snapshot.currentMerge
+        ? { left: [...snapshot.currentMerge.left], right: [...snapshot.currentMerge.right] }
+        : null;
+      state.leftRun = [...snapshot.leftRun];
+      state.rightRun = [...snapshot.rightRun];
+      state.leftIndex = snapshot.leftIndex;
+      state.rightIndex = snapshot.rightIndex;
+      state.mergedCurrent = [...snapshot.mergedCurrent];
+      state.leftItem = snapshot.leftItem;
+      state.rightItem = snapshot.rightItem;
+      state.comparisonsDone = snapshot.comparisonsDone;
+      state.finished = snapshot.finished;
+      state.finalRanking = cloneRanking(snapshot.finalRanking);
+      state.tieGroups.importData(snapshot.tieGroupsData);
+    }
+
+    function cloneRuns(runs) {
+      return runs.map(run => [...run]);
+    }
+
+    function cloneRanking(ranking) {
+      return ranking.map(group => ({
+        rank: group.rank,
+        label: group.label,
+        members: [...group.members]
+      }));
+    }
+  </script>
+</body>
+</html>
