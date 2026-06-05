@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DIALOGUE+ 推しソート</title>
+  <title>AirLink Controller | iPhone Wi-Fiミラーリング</title>
   <style>
     :root {
-      --bg: #f6f7fb;
-      --panel: #ffffffcc;
-      --panel-solid: #ffffff;
-      --text: #111111;
-      --muted: #5d6470;
-      --line: #d9dfeb;
-      --accent: #111111;
-      --shadow: 0 12px 28px rgba(24, 33, 56, 0.12);
-      --radius: 22px;
-      --radius-sm: 16px;
-      --tap-scale: 0.985;
+      --bg: #08111f;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-strong: rgba(255, 255, 255, 0.14);
+      --text: #f7fbff;
+      --muted: #aebdd2;
+      --line: rgba(255, 255, 255, 0.16);
+      --cyan: #5ee7ff;
+      --blue: #6b8cff;
+      --green: #54f0a7;
+      --pink: #ff6fb1;
+      --orange: #ffbc6b;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+      --radius: 28px;
       --max-width: 1180px;
     }
 
@@ -24,20 +26,30 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
-      padding: 0;
+      min-height: 100%;
       background:
-        radial-gradient(circle at top left, #ffffff 0%, #f6f7fb 45%, #eef2f9 100%);
+        radial-gradient(circle at 10% 10%, rgba(94, 231, 255, 0.24), transparent 34%),
+        radial-gradient(circle at 88% 0%, rgba(255, 111, 177, 0.2), transparent 30%),
+        linear-gradient(140deg, #07101f 0%, #0f1830 52%, #090d18 100%);
       color: var(--text);
       font-family:
         "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Meiryo",
         system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100%;
     }
 
     body {
-      padding: 16px;
+      padding: 20px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
     }
 
     .app {
@@ -45,1325 +57,571 @@
       margin: 0 auto;
     }
 
-    .shell {
-      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.84));
-      border: 1px solid rgba(210, 218, 233, 0.85);
-      border-radius: 28px;
-      box-shadow: 0 18px 46px rgba(33, 45, 77, 0.12);
+    .hero {
+      position: relative;
       overflow: hidden;
-      backdrop-filter: blur(8px);
-    }
-
-    .header {
-      padding: 22px 22px 14px;
-      border-bottom: 1px solid rgba(217, 223, 235, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 36px;
       background:
-        radial-gradient(circle at 20% -30%, rgba(255, 190, 213, 0.28), transparent 30%),
-        radial-gradient(circle at 80% -10%, rgba(178, 217, 255, 0.25), transparent 28%),
-        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,252,255,0.9));
+        linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.04)),
+        rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
     }
 
-    .header-top {
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -40% -20% auto 45%;
+      height: 520px;
+      background: conic-gradient(from 120deg, rgba(94, 231, 255, 0.3), rgba(107, 140, 255, 0.08), rgba(255, 111, 177, 0.22), rgba(94, 231, 255, 0.3));
+      filter: blur(18px);
+      opacity: 0.75;
+      transform: rotate(-12deg);
+    }
+
+    .hero-inner {
+      position: relative;
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
-      align-items: start;
+      grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
+      gap: 26px;
+      padding: clamp(24px, 4vw, 46px);
+      align-items: center;
     }
 
-    .title-wrap h1 {
-      margin: 0;
-      font-size: clamp(1.5rem, 2.8vw, 2.2rem);
-      line-height: 1.1;
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      width: fit-content;
+      margin-bottom: 18px;
+      padding: 8px 13px;
+      border: 1px solid rgba(94, 231, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(94, 231, 255, 0.09);
+      color: #dffbff;
+      font-weight: 800;
       letter-spacing: 0.02em;
-      font-weight: 900;
     }
 
-    .title-wrap p {
-      margin: 8px 0 0;
+    .pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 0 8px rgba(84, 240, 167, 0.12);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 5.4vw, 4.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+    }
+
+    .lead {
+      max-width: 680px;
+      margin: 22px 0 0;
       color: var(--muted);
-      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      font-size: clamp(1rem, 2.2vw, 1.22rem);
+      line-height: 1.8;
       font-weight: 700;
     }
 
-    .progress-box {
-      min-width: min(320px, 42vw);
-      background: rgba(255,255,255,0.88);
-      border: 1px solid rgba(215, 223, 239, 0.95);
-      border-radius: 18px;
-      padding: 12px 14px;
-      box-shadow: 0 8px 20px rgba(27, 38, 66, 0.06);
-    }
-
-    .progress-labels {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: baseline;
-      margin-bottom: 8px;
-      font-weight: 800;
-    }
-
-    .progress-labels .percent {
-      font-size: 1.1rem;
-    }
-
-    .progress-labels .count {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .progress-track {
-      position: relative;
-      height: 12px;
-      background: #e9eef8;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-bar {
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 0%;
-      background: linear-gradient(90deg, #8ed0ff 0%, #ffb2cf 50%, #ffe37d 100%);
-      border-radius: 999px;
-      transition: width 0.22s ease;
-    }
-
-    .toolbar {
+    .cta-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: center;
-      padding-top: 16px;
-    }
-
-    button {
-      appearance: none;
-      border: none;
-      cursor: pointer;
-      font: inherit;
-      color: var(--text);
-      transition:
-        transform 0.14s ease,
-        box-shadow 0.18s ease,
-        opacity 0.18s ease,
-        filter 0.18s ease;
-    }
-
-    button:active {
-      transform: scale(var(--tap-scale));
+      gap: 12px;
+      margin-top: 28px;
     }
 
     .btn {
-      min-height: 48px;
-      padding: 12px 18px;
-      border-radius: 999px;
-      background: var(--panel-solid);
+      display: inline-flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 18px;
       border: 1px solid var(--line);
-      box-shadow: 0 8px 18px rgba(19, 28, 50, 0.06);
-      font-weight: 800;
-      font-size: 0.98rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      font-weight: 900;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
     }
 
-    .btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 20px rgba(19, 28, 50, 0.08);
-      filter: brightness(1.01);
-    }
-
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.48;
-      box-shadow: none;
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(94, 231, 255, 0.56);
+      background: rgba(255, 255, 255, 0.16);
     }
 
     .btn-primary {
-      background: #111111;
-      color: #ffffff;
-      border-color: #111111;
+      color: #06101c;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      box-shadow: 0 14px 34px rgba(94, 231, 255, 0.24);
     }
 
-    .main {
-      padding: 18px;
-    }
-
-    .helper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 6px 6px 16px;
-      color: var(--muted);
-      font-weight: 700;
-      text-align: center;
-      font-size: 0.96rem;
-    }
-
-    .compare-layout {
+    .device-stage {
+      position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 176px minmax(0, 1fr);
-      gap: 14px;
-      align-items: stretch;
+      place-items: center;
+      min-height: 520px;
     }
 
-    .member-card {
-      position: relative;
-      min-height: 430px;
-      border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 28px;
-      overflow: hidden;
-      padding: 18px;
-      text-align: left;
-      box-shadow: var(--shadow);
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      isolation: isolate;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .member-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 18px 34px rgba(24, 33, 56, 0.16);
-    }
-
-    .member-card:focus-visible {
-      outline: 4px solid rgba(17,17,17,0.28);
-      outline-offset: 2px;
-    }
-
-    .member-card::before,
-    .member-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .member-card::before {
-      background:
-        radial-gradient(circle at 16% 18%, rgba(255,255,255,0.22) 0 3px, transparent 3px 100%),
-        radial-gradient(circle at 28% 26%, rgba(255,255,255,0.18) 0 2px, transparent 2px 100%),
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.16) 0 2px, transparent 2px 100%),
-        radial-gradient(circle at 72% 72%, rgba(255,255,255,0.18) 0 3px, transparent 3px 100%);
-      opacity: 0.65;
-      background-size: 110px 110px, 130px 130px, 150px 150px, 170px 170px;
-    }
-
-    .member-card::after {
-      background:
-        radial-gradient(circle at 82% 14%, rgba(255,255,255,0.22), rgba(255,255,255,0) 46%),
-        radial-gradient(circle at 14% 84%, rgba(255,255,255,0.18), rgba(255,255,255,0) 42%),
-        repeating-linear-gradient(
-          135deg,
-          rgba(255,255,255,0.11) 0 9px,
-          rgba(255,255,255,0) 9px 22px
-        );
-      mix-blend-mode: soft-light;
-      opacity: 0.72;
-    }
-
-    .card-top,
-    .card-bottom,
-    .card-center {
-      position: relative;
-      z-index: 1;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      width: fit-content;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.30);
-      backdrop-filter: blur(3px);
-      border: 1px solid rgba(0,0,0,0.08);
-      font-size: 0.92rem;
-      font-weight: 800;
-    }
-
-    .initial {
-      font-size: clamp(2.6rem, 7vw, 4.8rem);
-      line-height: 1;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      opacity: 0.9;
-      margin-bottom: 10px;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.14);
-    }
-
-    .name {
-      font-size: clamp(2rem, 5.5vw, 3.35rem);
-      line-height: 1.05;
-      font-weight: 900;
-      letter-spacing: 0.01em;
-      word-break: keep-all;
-      overflow-wrap: break-word;
-    }
-
-    .ruby {
-      margin-top: 10px;
-      font-size: clamp(0.98rem, 2vw, 1.08rem);
-      font-weight: 800;
-      opacity: 0.88;
-      letter-spacing: 0.04em;
-    }
-
-    .choose-hint {
-      font-size: 0.95rem;
-      font-weight: 800;
-      opacity: 0.82;
-    }
-
-    .center-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      justify-content: center;
-      align-items: stretch;
-      min-height: 430px;
-    }
-
-    .tie-btn {
-      min-height: 92px;
-      border-radius: 24px;
-      background: linear-gradient(180deg, #ffffff, #f6f8fd);
-      border: 1px solid var(--line);
-      box-shadow: 0 12px 24px rgba(25, 35, 60, 0.08);
-      font-size: 1.15rem;
-      font-weight: 900;
+    .monitor {
+      width: min(100%, 520px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 30px;
+      background: linear-gradient(180deg, #172039, #0a1020);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.44);
       padding: 16px;
     }
 
-    .tie-btn small {
-      display: block;
-      margin-top: 6px;
+    .monitor-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
       color: var(--muted);
-      font-size: 0.82rem;
-      font-weight: 700;
+      font-size: 0.86rem;
+      font-weight: 800;
     }
 
-    .center-note {
-      background: rgba(255,255,255,0.8);
-      border: 1px dashed #cfd7e6;
+    .window-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .window-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff6f6f;
+    }
+
+    .window-dots span:nth-child(2) {
+      background: #ffd36b;
+    }
+
+    .window-dots span:nth-child(3) {
+      background: #54f0a7;
+    }
+
+    .screen {
+      display: grid;
+      grid-template-columns: 0.76fr 1fr;
+      gap: 14px;
+      min-height: 310px;
+      border-radius: 22px;
+      padding: 16px;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(94, 231, 255, 0.2), transparent 34%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .phone {
+      align-self: center;
+      justify-self: center;
+      width: 142px;
+      min-height: 268px;
+      border: 7px solid #101522;
+      border-radius: 30px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.08)),
+        linear-gradient(145deg, #79e6ff, #716bff 48%, #ff72b4);
+      box-shadow: 0 22px 44px rgba(0, 0, 0, 0.34);
+      padding: 16px 12px;
+    }
+
+    .phone-notch {
+      width: 48px;
+      height: 7px;
+      margin: 0 auto 18px;
+      border-radius: 999px;
+      background: rgba(8, 17, 31, 0.72);
+    }
+
+    .app-icons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .app-icon {
+      aspect-ratio: 1;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: inset 0 -8px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-card {
+      border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 18px;
-      padding: 12px;
+      padding: 14px;
+      background: rgba(6, 16, 28, 0.44);
+    }
+
+    .status-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.02rem;
+    }
+
+    .status-card span {
       color: var(--muted);
       font-size: 0.9rem;
       line-height: 1.5;
       font-weight: 700;
-      text-align: center;
     }
 
-    .result-view {
-      display: none;
-      padding: 18px;
-    }
-
-    .result-view.active {
-      display: block;
-    }
-
-    .result-header {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 14px;
-      align-items: end;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .result-title h2 {
-      margin: 0;
-      font-size: clamp(1.4rem, 2.5vw, 2rem);
-      line-height: 1.15;
-      font-weight: 900;
-    }
-
-    .result-title p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .result-grid {
+    .launcher {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .launch-btn {
+      min-height: 58px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      font-weight: 900;
+      transition: background 0.16s ease, transform 0.16s ease;
+    }
+
+    .launch-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(94, 231, 255, 0.14);
+    }
+
+    .connection-log {
+      min-height: 44px;
+      color: #dffbff;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 16px;
-      align-items: start;
+      margin-top: 18px;
     }
 
-    .ranking-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .rank-item {
-      position: relative;
-      border-radius: 22px;
-      padding: 16px 18px;
-      border: 1px solid rgba(0,0,0,0.08);
-      box-shadow: 0 10px 22px rgba(26, 34, 58, 0.08);
-      overflow: hidden;
-    }
-
-    .rank-item.first {
-      padding: 20px 20px;
-      box-shadow: 0 16px 30px rgba(26, 34, 58, 0.14);
-    }
-
-    .rank-item::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 86% 18%, rgba(255,255,255,0.24), transparent 42%),
-        repeating-linear-gradient(
-          135deg,
-          rgba(255,255,255,0.10) 0 9px,
-          rgba(255,255,255,0) 9px 20px
-        );
-      pointer-events: none;
-    }
-
-    .rank-row {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .rank-no {
-      min-width: 64px;
-      font-size: clamp(1.1rem, 2vw, 1.4rem);
-      font-weight: 900;
-    }
-
-    .rank-name {
-      font-size: clamp(1.25rem, 2.8vw, 1.7rem);
-      font-weight: 900;
-      line-height: 1.1;
-    }
-
-    .rank-item.first .rank-name {
-      font-size: clamp(1.4rem, 3.3vw, 2rem);
-    }
-
-    .rank-meta {
-      font-size: 0.92rem;
-      font-weight: 800;
-      opacity: 0.78;
-    }
-
-    .text-panel {
-      background: var(--panel-solid);
+    .card {
       border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 16px;
-      box-shadow: 0 10px 22px rgba(24, 33, 56, 0.06);
+      border-radius: var(--radius);
+      padding: 22px;
+      background: var(--panel);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(14px);
     }
 
-    .text-panel h3 {
+    .card h2,
+    .card h3 {
       margin: 0 0 10px;
-      font-size: 1.08rem;
-      font-weight: 900;
+      font-size: 1.22rem;
+      line-height: 1.25;
     }
 
-    .copy-box {
-      width: 100%;
-      min-height: 318px;
-      resize: vertical;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      font: inherit;
-      line-height: 1.65;
-      color: var(--text);
-      background: #fafcff;
-    }
-
-    .copy-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .footer-note {
-      margin-top: 14px;
-      font-size: 0.9rem;
+    .card p,
+    .card li {
       color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.72;
       font-weight: 700;
     }
 
-    .hidden {
-      display: none !important;
+    .card ul,
+    .card ol {
+      margin: 12px 0 0;
+      padding-left: 1.2em;
     }
 
-    .members-config-panel {
-      margin-top: 14px;
-      background: rgba(255,255,255,0.82);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
+    .wide {
+      grid-column: span 2;
     }
 
-    .members-config-panel summary {
-      cursor: pointer;
-      font-weight: 900;
-      font-size: 0.98rem;
-      list-style: none;
-    }
-
-    .members-config-panel summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .members-config-panel summary::before {
-      content: "▸";
-      display: inline-block;
-      margin-right: 8px;
-      transition: transform 0.18s ease;
-    }
-
-    .members-config-panel[open] summary::before {
-      transform: rotate(90deg);
-    }
-
-    .member-checks {
+    .feature-list {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px 14px;
-      margin-top: 14px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
     }
 
-    .member-check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: #f8fbff;
-      border: 1px solid #dde5f2;
+    .feature {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+    }
+
+    .feature b {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 188, 107, 0.34);
+      border-radius: 18px;
+      background: rgba(255, 188, 107, 0.09);
+      color: #ffe8c9;
       font-weight: 800;
+      line-height: 1.65;
     }
 
-    .member-check input {
-      width: 18px;
-      height: 18px;
-      accent-color: #111111;
-      flex: 0 0 auto;
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 10;
+      width: min(calc(100% - 32px), 460px);
+      padding: 14px 18px;
+      border: 1px solid rgba(94, 231, 255, 0.3);
+      border-radius: 18px;
+      background: rgba(7, 16, 31, 0.92);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+      color: #f7fbff;
+      text-align: center;
+      font-weight: 900;
+      transform: translate(-50%, 120%);
+      transition: transform 0.22s ease;
     }
 
-    .member-check .swatch {
-      width: 16px;
-      height: 16px;
-      border-radius: 999px;
-      border: 1px solid rgba(0,0,0,0.12);
-      flex: 0 0 auto;
+    .toast.show {
+      transform: translate(-50%, 0);
     }
 
-    @media (max-width: 920px) {
-      .header-top {
+    @media (max-width: 940px) {
+      .hero-inner,
+      .section-grid {
         grid-template-columns: 1fr;
       }
 
-      .progress-box {
-        min-width: 0;
-      }
-
-      .compare-layout {
-        grid-template-columns: minmax(0, 1fr) 124px minmax(0, 1fr);
-      }
-
-      .member-card,
-      .center-actions {
-        min-height: 390px;
-      }
-
-      .result-grid {
-        grid-template-columns: 1fr;
+      .wide {
+        grid-column: auto;
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 620px) {
       body {
-        padding: 10px;
-      }
-
-      .header {
-        padding: 18px 14px 12px;
-      }
-
-      .main,
-      .result-view {
         padding: 12px;
       }
 
-      .compare-layout {
-        grid-template-columns: minmax(0, 1fr) 94px minmax(0, 1fr);
-        gap: 8px;
+      .hero {
+        border-radius: 24px;
       }
 
-      .member-card {
-        min-height: 350px;
-        padding: 14px;
-        border-radius: 22px;
+      .hero-inner {
+        padding: 22px;
       }
 
-      .center-actions {
-        min-height: 350px;
-        gap: 8px;
+      .device-stage {
+        min-height: 0;
       }
 
-      .tie-btn {
-        min-height: 86px;
-        border-radius: 18px;
-        font-size: 1rem;
-        padding: 12px 10px;
-      }
-
-      .center-note {
-        padding: 10px 8px;
-        font-size: 0.8rem;
-        border-radius: 14px;
-      }
-
-      .tag {
-        font-size: 0.78rem;
-        padding: 7px 10px;
-      }
-
-      .name {
-        font-size: clamp(1.35rem, 7vw, 2rem);
-        line-height: 1.08;
-      }
-
-      .initial {
-        font-size: clamp(2rem, 9vw, 3rem);
-      }
-
-      .ruby {
-        font-size: 0.82rem;
-      }
-
-      .btn {
-        min-height: 44px;
-        padding: 11px 14px;
-        font-size: 0.92rem;
-      }
-
-      .member-checks {
+      .screen,
+      .feature-list {
         grid-template-columns: 1fr;
       }
 
-      .rank-row {
-        grid-template-columns: auto 1fr;
-      }
-
-      .rank-meta {
-        grid-column: 2;
-      }
-
-      .copy-box {
-        min-height: 240px;
+      .launcher {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="shell">
-      <header class="header">
-        <div class="header-top">
-          <div class="title-wrap">
-            <h1>DIALOGUE+ 推しソート</h1>
-            <p>好きな方をタップして進めてください</p>
+    <section class="hero" aria-labelledby="pageTitle">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow"><span class="pulse" aria-hidden="true"></span>Wi-FiでiPhoneをWindowsに表示・操作</div>
+          <h1 id="pageTitle">AirLink Controller</h1>
+          <p class="lead">
+            iPhoneの画面を同じWi-Fi上のWindows PCへミラーリングし、PCのマウスクリックでアプリ起動・タップ操作・デモ進行を行うための操作画面プロトタイプです。
+          </p>
+          <div class="cta-row">
+            <button class="btn btn-primary" id="connectButton" type="button">接続を開始</button>
+            <button class="btn" id="copyStepsButton" type="button">接続手順をコピー</button>
           </div>
-
-          <div class="progress-box" aria-live="polite">
-            <div class="progress-labels">
-              <span class="percent" id="progressPercent">0%</span>
-              <span class="count" id="progressCount">比較: 0 / 0</span>
-            </div>
-            <div class="progress-track" aria-hidden="true">
-              <div class="progress-bar" id="progressBar"></div>
-            </div>
+          <div class="note">
+            実際のiPhone遠隔操作・画面取得には、Windows側のネイティブアプリ、iOSの画面収録/ミラーリング連携、権限管理が必要です。この画面は製品UIと利用フローを示すWebプロトタイプです。
           </div>
         </div>
 
-        <div class="toolbar">
-          <button class="btn btn-primary" id="resetButton" type="button">はじめから</button>
-          <button class="btn" id="memberSelectToggle" type="button">メンバー選択</button>
-          <button class="btn" id="undoButton" type="button" disabled>戻る</button>
-        </div>
-
-        <details class="members-config-panel hidden" id="memberSelectPanel">
-          <summary>比較に入れるメンバーを選ぶ</summary>
-          <div class="member-checks" id="memberChecks"></div>
-          <div class="footer-note">
-            2人以上選ぶとソートできます。変更後は自動で最初からやり直しになります。
-          </div>
-        </details>
-      </header>
-
-      <main class="main" id="compareView">
-        <div class="helper">
-          左右のカードを直接タップで選択できます / 迷ったら中央の「引き分け」
-        </div>
-
-        <div class="compare-layout">
-          <button class="member-card" id="leftCard" type="button" aria-label="左のメンバーを選ぶ">
-            <div class="card-top">
-              <div class="tag">LEFT</div>
+        <div class="device-stage" aria-label="ミラーリング画面プレビュー">
+          <div class="monitor">
+            <div class="monitor-top">
+              <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span id="statusLabel">待機中</span>
             </div>
-            <div class="card-center">
-              <div class="initial" id="leftInitial">YU</div>
-              <div class="name" id="leftName">内山悠里菜</div>
-              <div class="ruby" id="leftRoman">YURINA UCHIYAMA</div>
-            </div>
-            <div class="card-bottom">
-              <div class="choose-hint">タップして選択</div>
-            </div>
-          </button>
-
-          <div class="center-actions">
-            <button class="tie-btn" id="tieButton" type="button">
-              引き分け
-              <small>どちらも選べないとき</small>
-            </button>
-            <div class="center-note">
-              戻るで直前の比較をやり直せます
-            </div>
-          </div>
-
-          <button class="member-card" id="rightCard" type="button" aria-label="右のメンバーを選ぶ">
-            <div class="card-top" style="display:flex;justify-content:flex-end;">
-              <div class="tag">RIGHT</div>
-            </div>
-            <div class="card-center">
-              <div class="initial" id="rightInitial">NE</div>
-              <div class="name" id="rightName">稗田寧々</div>
-              <div class="ruby" id="rightRoman">NENE HIEDA</div>
-            </div>
-            <div class="card-bottom" style="text-align:right;">
-              <div class="choose-hint">タップして選択</div>
-            </div>
-          </button>
-        </div>
-
-        <div class="footer-note">
-          写真や宣材画像は使わず、メンバーカラーと文字だけで見やすく比較できるようにしています。
-        </div>
-      </main>
-
-      <section class="result-view" id="resultView">
-        <div class="result-header">
-          <div class="result-title">
-            <h2>ソート結果</h2>
-            <p id="resultSummary">1位から表示しています</p>
-          </div>
-          <div class="copy-actions">
-            <button class="btn btn-primary" id="retryButton" type="button">もう一度やる</button>
-            <button class="btn" id="copyButton" type="button">結果をコピー</button>
-          </div>
-        </div>
-
-        <div class="result-grid">
-          <div class="ranking-list" id="rankingList"></div>
-
-          <div class="text-panel">
-            <h3>コピペ用テキスト</h3>
-            <textarea class="copy-box" id="resultText" readonly></textarea>
-            <div class="copy-actions">
-              <button class="btn" id="copySnsButton" type="button">SNS向け文面をコピー</button>
-            </div>
-            <div class="footer-note">
-              引き分けがある場合は同順位表示になります。SNS向け文面も自動生成します。
+            <div class="screen">
+              <div class="phone" aria-label="iPhone画面">
+                <div class="phone-notch"></div>
+                <div class="app-icons" id="phoneIcons">
+                  <div class="app-icon"></div><div class="app-icon"></div><div class="app-icon"></div>
+                  <div class="app-icon"></div><div class="app-icon"></div><div class="app-icon"></div>
+                  <div class="app-icon"></div><div class="app-icon"></div><div class="app-icon"></div>
+                </div>
+              </div>
+              <div class="control-panel">
+                <div class="status-card">
+                  <strong>接続ステータス</strong>
+                  <span id="connectionText">iPhoneとWindows PCを同じWi-Fiに接続して開始してください。</span>
+                </div>
+                <div class="status-card">
+                  <strong>クイック起動</strong>
+                  <span>接続後、PCからクリックしてiPhoneアプリを開く想定のショートカットです。</span>
+                </div>
+                <div class="launcher">
+                  <button class="launch-btn" data-app="Safari" type="button">Safari</button>
+                  <button class="launch-btn" data-app="写真" type="button">写真</button>
+                  <button class="launch-btn" data-app="LINE" type="button">LINE</button>
+                  <button class="launch-btn" data-app="設定" type="button">設定</button>
+                </div>
+                <div class="connection-log" id="connectionLog">操作ログ: まだ操作はありません。</div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <section class="section-grid" aria-label="機能説明">
+      <article class="card wide">
+        <h2>目的に合わせた主要機能</h2>
+        <p>
+          参考製品のように、スマホ画面のPC表示、PC側からの操作、アプリデモ、録画や共有へつながる導線を1画面にまとめています。
+        </p>
+        <div class="feature-list">
+          <div class="feature">
+            <b>Wi-Fiミラーリング</b>
+            <p>同一ネットワーク上のiPhoneを検出し、Windows PC画面へ大きく表示する導線。</p>
+          </div>
+          <div class="feature">
+            <b>クリック操作</b>
+            <p>PCのマウスでタップ相当の操作やアプリ起動を行うためのコントロール領域。</p>
+          </div>
+          <div class="feature">
+            <b>デモ・説明向け</b>
+            <p>アプリ紹介、オンライン会議、操作説明で使いやすいステータスとログ表示。</p>
+          </div>
+          <div class="feature">
+            <b>拡張しやすい設計</b>
+            <p>録画、スクリーンショット、配信、ファイル転送などを追加しやすいカード構成。</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>接続フロー</h3>
+        <ol>
+          <li>Windows PCで受信アプリを起動します。</li>
+          <li>iPhoneとPCを同じWi-Fiへ接続します。</li>
+          <li>iPhoneの画面ミラーリングからPCを選択します。</li>
+          <li>PC側でクリック操作・アプリ起動を行います。</li>
+        </ol>
+      </article>
+
+      <article class="card">
+        <h3>想定ユースケース</h3>
+        <ul>
+          <li>スマホアプリの操作デモ</li>
+          <li>オンライン会議での画面共有</li>
+          <li>ゲームや動画の大画面表示</li>
+          <li>サポート担当による操作説明</li>
+        </ul>
+      </article>
+
+      <article class="card wide">
+        <h3>開発メモ</h3>
+        <p>
+          WebだけではiPhoneの画面取得や端末制御は完結しません。製品化では、Windowsネイティブ層でAirPlay相当の受信、低遅延映像表示、入力イベント変換、許可済み操作のみを実行する安全設計を組み合わせます。
+        </p>
+      </article>
+    </section>
   </div>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    /*
-      ================================
-      メンバー一覧を変える場所
-      カラーを変える場所
-      ================================
-      - name: 表示名
-      - color: カード背景色
-      - roman: ローマ字表示
-      - short: 大きく出す頭文字・略称
-      - enabled: 初期状態で比較に含めるか
-    */
-    const MEMBERS = [
-      { id: "uchiyama", name: "内山悠里菜", roman: "YURINA UCHIYAMA", short: "YU", color: "#f8c9da", enabled: true },
-      { id: "hieda", name: "稗田寧々", roman: "NENE HIEDA", short: "NE", color: "#ffe36a", enabled: true },
-      { id: "moriya", name: "守屋亨香", roman: "KYOKA MORIYA", short: "KM", color: "#95e07e", enabled: true },
-      { id: "ogata", name: "緒方佑奈", roman: "YUNA OGATA", short: "YO", color: "#79b7ff", enabled: true },
-      { id: "takamura", name: "鷹村彩花", roman: "AYAKA TAKAMURA", short: "AT", color: "#ffb25c", enabled: true },
-      { id: "miyahara", name: "SATSUKI MIYAHARA", roman: "SATSUKI MIYAHARA", short: "SM", color: "#ff78b5", enabled: true, displayName: "宮原颯希" },
-      { id: "iizuka", name: "飯塚麻結", roman: "MAYU IIZUKA", short: "MI", color: "#9bdcff", enabled: true },
-      { id: "murakami", name: "村上まなつ", roman: "MANATSU MURAKAMI", short: "MM", color: "#bb8cff", enabled: true }
-    ].map(member => ({
-      ...member,
-      displayName: member.displayName || member.name
-    }));
+    const stepsText = [
+      "1. Windows PCでAirLink Controllerを起動",
+      "2. iPhoneとWindows PCを同じWi-Fiに接続",
+      "3. iPhoneの画面ミラーリングでPC名を選択",
+      "4. PC側からクリックでアプリ起動・タップ操作を実行"
+    ].join("\n");
 
     const els = {
-      compareView: document.getElementById("compareView"),
-      resultView: document.getElementById("resultView"),
-      progressPercent: document.getElementById("progressPercent"),
-      progressCount: document.getElementById("progressCount"),
-      progressBar: document.getElementById("progressBar"),
-      leftCard: document.getElementById("leftCard"),
-      rightCard: document.getElementById("rightCard"),
-      leftName: document.getElementById("leftName"),
-      rightName: document.getElementById("rightName"),
-      leftRoman: document.getElementById("leftRoman"),
-      rightRoman: document.getElementById("rightRoman"),
-      leftInitial: document.getElementById("leftInitial"),
-      rightInitial: document.getElementById("rightInitial"),
-      tieButton: document.getElementById("tieButton"),
-      undoButton: document.getElementById("undoButton"),
-      resetButton: document.getElementById("resetButton"),
-      retryButton: document.getElementById("retryButton"),
-      rankingList: document.getElementById("rankingList"),
-      resultText: document.getElementById("resultText"),
-      copyButton: document.getElementById("copyButton"),
-      copySnsButton: document.getElementById("copySnsButton"),
-      resultSummary: document.getElementById("resultSummary"),
-      memberSelectToggle: document.getElementById("memberSelectToggle"),
-      memberSelectPanel: document.getElementById("memberSelectPanel"),
-      memberChecks: document.getElementById("memberChecks")
+      connectButton: document.getElementById("connectButton"),
+      copyStepsButton: document.getElementById("copyStepsButton"),
+      statusLabel: document.getElementById("statusLabel"),
+      connectionText: document.getElementById("connectionText"),
+      connectionLog: document.getElementById("connectionLog"),
+      toast: document.getElementById("toast"),
+      launchButtons: document.querySelectorAll(".launch-btn"),
+      phoneIcons: document.querySelectorAll(".app-icon")
     };
 
-    const STORAGE_KEY = "dialogue_plus_oshi_sort_selection";
+    let connected = false;
+    let toastTimer = 0;
 
-    let enabledMap = loadEnabledMap();
-    let sorterState = null;
-
-    init();
-
-    function init() {
-      renderMemberChecks();
-      bindEvents();
-      startNewSort();
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      toastTimer = window.setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 2200);
     }
 
-    function bindEvents() {
-      els.leftCard.addEventListener("click", () => choose("left"));
-      els.rightCard.addEventListener("click", () => choose("right"));
-      els.tieButton.addEventListener("click", () => choose("tie"));
-      els.undoButton.addEventListener("click", undoLastStep);
-      els.resetButton.addEventListener("click", startNewSort);
-      els.retryButton.addEventListener("click", startNewSort);
-      els.copyButton.addEventListener("click", () => copyText(els.resultText.value, "結果をコピーしました"));
-      els.copySnsButton.addEventListener("click", () => {
-        const text = buildSnsText(sorterState?.finalRanking || []);
-        copyText(text, "SNS向け文面をコピーしました");
-      });
-      els.memberSelectToggle.addEventListener("click", () => {
-        els.memberSelectPanel.classList.toggle("hidden");
-        if (!els.memberSelectPanel.classList.contains("hidden")) {
-          els.memberSelectPanel.open = true;
-        }
+    function setConnectedState() {
+      connected = true;
+      els.statusLabel.textContent = "接続済み: iPhone 15";
+      els.connectionText.textContent = "ミラーリング中です。PC側のクリック操作をiPhoneのタップ操作として送信する想定です。";
+      els.connectionLog.textContent = "操作ログ: Wi-Fi接続を確立し、iPhone画面をWindowsへ表示しました。";
+      els.connectButton.textContent = "再接続する";
+      showToast("iPhoneとのWi-Fiミラーリングを開始しました");
+    }
+
+    function copySteps() {
+      navigator.clipboard.writeText(stepsText).then(() => {
+        showToast("接続手順をコピーしました");
       });
     }
 
-    function loadEnabledMap() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-        const map = {};
-        MEMBERS.forEach(member => {
-          map[member.id] = typeof saved[member.id] === "boolean" ? saved[member.id] : member.enabled;
-        });
-        return map;
-      } catch {
-        const map = {};
-        MEMBERS.forEach(member => { map[member.id] = member.enabled; });
-        return map;
-      }
-    }
-
-    function saveEnabledMap() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(enabledMap));
-    }
-
-    function renderMemberChecks() {
-      els.memberChecks.innerHTML = "";
-      MEMBERS.forEach(member => {
-        const label = document.createElement("label");
-        label.className = "member-check";
-
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.checked = !!enabledMap[member.id];
-        input.addEventListener("change", () => {
-          enabledMap[member.id] = input.checked;
-          if (getEnabledMembers().length < 2) {
-            enabledMap[member.id] = true;
-            input.checked = true;
-            alert("最低2人は選択してください。");
-            return;
-          }
-          saveEnabledMap();
-          startNewSort();
-        });
-
-        const swatch = document.createElement("span");
-        swatch.className = "swatch";
-        swatch.style.background = member.color;
-
-        const text = document.createElement("span");
-        text.textContent = member.displayName;
-
-        label.appendChild(input);
-        label.appendChild(swatch);
-        label.appendChild(text);
-        els.memberChecks.appendChild(label);
-      });
-    }
-
-    function getEnabledMembers() {
-      return MEMBERS.filter(member => enabledMap[member.id]);
-    }
-
-    function startNewSort() {
-      const activeMembers = getEnabledMembers();
-      sorterState = createSorter(activeMembers);
-      updateProgress();
-      renderCurrentPairOrResult();
-      setCompareMode(true);
-    }
-
-    function setCompareMode(isCompare) {
-      els.compareView.classList.toggle("hidden", !isCompare);
-      els.resultView.classList.toggle("active", !isCompare);
-    }
-
-    function choose(type) {
-      if (!sorterState || sorterState.finished) return;
-
-      if (type === "left") {
-        applyChoice(sorterState.leftItem);
-      } else if (type === "right") {
-        applyChoice(sorterState.rightItem);
-      } else {
-        applyTieChoice();
-      }
-
-      updateProgress();
-      renderCurrentPairOrResult();
-    }
-
-    function applyChoice(selectedItem) {
-      sorterState.history.push(snapshotSorter(sorterState));
-
-      const currentRight = sorterState.rightRun[sorterState.rightIndex];
-      const currentLeft = sorterState.leftRun[sorterState.leftIndex];
-
-      if (selectedItem === currentLeft) {
-        sorterState.mergedCurrent.push(currentLeft);
-        sorterState.leftIndex += 1;
-      } else if (selectedItem === currentRight) {
-        sorterState.mergedCurrent.push(currentRight);
-        sorterState.rightIndex += 1;
-      }
-
-      sorterState.comparisonsDone += 1;
-      finalizeMergeProgressIfNeeded(sorterState);
-    }
-
-    function applyTieChoice() {
-      sorterState.history.push(snapshotSorter(sorterState));
-
-      const currentLeft = sorterState.leftRun[sorterState.leftIndex];
-      const currentRight = sorterState.rightRun[sorterState.rightIndex];
-
-      sorterState.tieGroups.union(currentLeft.id, currentRight.id);
-      sorterState.mergedCurrent.push(currentLeft);
-      sorterState.mergedCurrent.push(currentRight);
-      sorterState.leftIndex += 1;
-      sorterState.rightIndex += 1;
-      sorterState.comparisonsDone += 1;
-
-      finalizeMergeProgressIfNeeded(sorterState);
-    }
-
-    function finalizeMergeProgressIfNeeded(state) {
-      while (true) {
-        const leftFinished = state.leftIndex >= state.leftRun.length;
-        const rightFinished = state.rightIndex >= state.rightRun.length;
-
-        if (!leftFinished && !rightFinished) {
-          prepareCurrentPair(state);
-          return;
-        }
-
-        if (leftFinished && !rightFinished) {
-          state.mergedCurrent.push(...state.rightRun.slice(state.rightIndex));
-          state.rightIndex = state.rightRun.length;
-        }
-
-        if (rightFinished && !leftFinished) {
-          state.mergedCurrent.push(...state.leftRun.slice(state.leftIndex));
-          state.leftIndex = state.leftRun.length;
-        }
-
-        state.nextQueue.push(state.mergedCurrent);
-        state.currentMerge = null;
-
-        if (state.queue.length === 0) {
-          if (state.nextQueue.length === 1) {
-            state.finished = true;
-            state.finalRanking = buildFinalRanking(state.nextQueue[0], state.tieGroups);
-            return;
-          }
-          state.queue = state.nextQueue;
-          state.nextQueue = [];
-        }
-
-        startNextMerge(state);
-
-        if (!state.currentMerge) {
-          if (state.finished) return;
-          continue;
-        }
-        prepareCurrentPair(state);
-        return;
-      }
-    }
-
-    function undoLastStep() {
-      if (!sorterState || sorterState.history.length === 0) return;
-      const snapshot = sorterState.history.pop();
-      restoreSorter(sorterState, snapshot);
-      updateProgress();
-      renderCurrentPairOrResult();
-    }
-
-    function renderCurrentPairOrResult() {
-      els.undoButton.disabled = !sorterState || sorterState.history.length === 0;
-
-      if (!sorterState || sorterState.finished) {
-        renderResult();
-        setCompareMode(false);
+    function launchApp(appName, index) {
+      if (!connected) {
+        showToast("先に接続を開始してください");
         return;
       }
 
-      const left = sorterState.leftItem;
-      const right = sorterState.rightItem;
-      if (!left || !right) return;
-
-      renderMemberCard(els.leftCard, {
-        nameEl: els.leftName,
-        romanEl: els.leftRoman,
-        initialEl: els.leftInitial
-      }, left, "LEFT");
-
-      renderMemberCard(els.rightCard, {
-        nameEl: els.rightName,
-        romanEl: els.rightRoman,
-        initialEl: els.rightInitial
-      }, right, "RIGHT");
-
-      setCompareMode(true);
-    }
-
-    function renderMemberCard(cardEl, textRefs, member, sideText) {
-      cardEl.style.background = member.color;
-      textRefs.nameEl.textContent = member.displayName;
-      textRefs.romanEl.textContent = member.roman;
-      textRefs.initialEl.textContent = member.short;
-
-      const tag = cardEl.querySelector(".tag");
-      if (tag) tag.textContent = sideText;
-    }
-
-    function updateProgress() {
-      if (!sorterState) return;
-      const total = Math.max(sorterState.totalEstimatedComparisons, sorterState.comparisonsDone);
-      const percent = total === 0 ? 100 : Math.min(100, Math.round((sorterState.comparisonsDone / total) * 100));
-
-      els.progressPercent.textContent = `${percent}%`;
-      els.progressCount.textContent = `比較: ${sorterState.comparisonsDone} / ${total}`;
-      els.progressBar.style.width = `${percent}%`;
-
-      if (sorterState.finished) {
-        els.progressPercent.textContent = "100%";
-        els.progressBar.style.width = "100%";
+      els.phoneIcons.forEach(icon => icon.style.outline = "none");
+      if (els.phoneIcons[index]) {
+        els.phoneIcons[index].style.outline = "3px solid rgba(84, 240, 167, 0.86)";
+        els.phoneIcons[index].style.outlineOffset = "3px";
       }
+      els.connectionLog.textContent = `操作ログ: PCクリックで${appName}を開くコマンドを送信しました。`;
+      showToast(`${appName}を起動しました`);
     }
 
-    function renderResult() {
-      const ranking = sorterState?.finalRanking || [];
-      els.rankingList.innerHTML = "";
-
-      ranking.forEach((group, index) => {
-        const item = document.createElement("div");
-        item.className = "rank-item" + (index === 0 ? " first" : "");
-        item.style.background = group.members[0].color;
-
-        const row = document.createElement("div");
-        row.className = "rank-row";
-
-        const rankNo = document.createElement("div");
-        rankNo.className = "rank-no";
-        rankNo.textContent = group.label;
-
-        const rankName = document.createElement("div");
-        rankName.className = "rank-name";
-        rankName.textContent = group.members.map(member => member.displayName).join(" / ");
-
-        const rankMeta = document.createElement("div");
-        rankMeta.className = "rank-meta";
-        rankMeta.textContent = group.members.length > 1 ? "引き分け同順位" : group.members[0].roman;
-
-        row.appendChild(rankNo);
-        row.appendChild(rankName);
-        row.appendChild(rankMeta);
-        item.appendChild(row);
-        els.rankingList.appendChild(item);
-      });
-
-      els.resultText.value = buildCopyText(ranking);
-      els.resultSummary.textContent = `比較回数: ${sorterState.comparisonsDone} / 対象メンバー: ${getEnabledMembers().length}人`;
-    }
-
-    function buildCopyText(ranking) {
-      const lines = ["DIALOGUE+ 推しソート結果", ""];
-      ranking.forEach(group => {
-        if (group.members.length === 1) {
-          lines.push(`${group.label} ${group.members[0].displayName}`);
-        } else {
-          lines.push(`${group.label} ${group.members.map(member => member.displayName).join(" / ")}`);
-        }
-      });
-      return lines.join("\n");
-    }
-
-    function buildSnsText(ranking) {
-      const lines = ["DIALOGUE+ 推しソート結果"];
-      ranking.forEach(group => {
-        lines.push(`${group.label} ${group.members.map(member => member.displayName).join(" / ")}`);
-      });
-      lines.push("");
-      lines.push("#DIALOGUEプラス");
-      lines.push("#推しソート");
-      return lines.join("\n");
-    }
-
-    async function copyText(text, successMessage) {
-      try {
-        await navigator.clipboard.writeText(text);
-        alert(successMessage);
-      } catch {
-        alert("コピーに失敗しました。テキストを手動で選択してください。");
-      }
-    }
-
-    function createSorter(memberList) {
-      const runs = memberList.map(member => [member]);
-      const state = {
-        queue: runs,
-        nextQueue: [],
-        currentMerge: null,
-        leftRun: [],
-        rightRun: [],
-        leftIndex: 0,
-        rightIndex: 0,
-        mergedCurrent: [],
-        leftItem: null,
-        rightItem: null,
-        comparisonsDone: 0,
-        totalEstimatedComparisons: estimateComparisons(memberList.length),
-        history: [],
-        finished: false,
-        finalRanking: [],
-        tieGroups: createUnionFind(memberList.map(member => member.id))
-      };
-
-      startNextMerge(state);
-      if (!state.finished) {
-        prepareCurrentPair(state);
-      }
-      return state;
-    }
-
-    function startNextMerge(state) {
-      if (state.queue.length >= 2) {
-        const left = state.queue.shift();
-        const right = state.queue.shift();
-
-        state.currentMerge = { left, right };
-        state.leftRun = left;
-        state.rightRun = right;
-        state.leftIndex = 0;
-        state.rightIndex = 0;
-        state.mergedCurrent = [];
-      } else if (state.queue.length === 1) {
-        state.nextQueue.push(state.queue.shift());
-        state.currentMerge = null;
-
-        if (state.queue.length === 0) {
-          if (state.nextQueue.length === 1) {
-            state.finished = true;
-            state.finalRanking = buildFinalRanking(state.nextQueue[0], state.tieGroups);
-          } else {
-            state.queue = state.nextQueue;
-            state.nextQueue = [];
-            startNextMerge(state);
-          }
-        }
-      } else {
-        state.currentMerge = null;
-      }
-    }
-
-    function prepareCurrentPair(state) {
-      if (!state.finished && state.leftIndex < state.leftRun.length && state.rightIndex < state.rightRun.length) {
-        state.leftItem = state.leftRun[state.leftIndex];
-        state.rightItem = state.rightRun[state.rightIndex];
-      } else {
-        state.leftItem = null;
-        state.rightItem = null;
-      }
-    }
-
-    function estimateComparisons(n) {
-      if (n <= 1) return 0;
-      return Math.ceil(n * Math.log2(n));
-    }
-
-    function createUnionFind(ids) {
-      const parent = new Map();
-      ids.forEach(id => parent.set(id, id));
-
-      function find(x) {
-        const p = parent.get(x);
-        if (p !== x) {
-          const root = find(p);
-          parent.set(x, root);
-          return root;
-        }
-        return p;
-      }
-
-      function union(a, b) {
-        const rootA = find(a);
-        const rootB = find(b);
-        if (rootA !== rootB) parent.set(rootB, rootA);
-      }
-
-      function exportData() {
-        return Array.from(parent.entries());
-      }
-
-      function importData(entries) {
-        parent.clear();
-        entries.forEach(([k, v]) => parent.set(k, v));
-      }
-
-      return { find, union, exportData, importData };
-    }
-
-    function buildFinalRanking(sortedList, tieGroups) {
-      const groups = [];
-      let currentRank = 1;
-
-      for (let i = 0; i < sortedList.length; i++) {
-        const current = sortedList[i];
-        if (i === 0) {
-          groups.push({
-            rank: currentRank,
-            label: `${currentRank}位`,
-            members: [current]
-          });
-          continue;
-        }
-
-        const prev = sortedList[i - 1];
-        const sameGroup = tieGroups.find(prev.id) === tieGroups.find(current.id);
-
-        if (sameGroup) {
-          groups[groups.length - 1].members.push(current);
-        } else {
-          currentRank = i + 1;
-          groups.push({
-            rank: currentRank,
-            label: `${currentRank}位`,
-            members: [current]
-          });
-        }
-      }
-
-      return groups;
-    }
-
-    function snapshotSorter(state) {
-      return {
-        queue: cloneRuns(state.queue),
-        nextQueue: cloneRuns(state.nextQueue),
-        currentMerge: state.currentMerge
-          ? { left: [...state.currentMerge.left], right: [...state.currentMerge.right] }
-          : null,
-        leftRun: [...state.leftRun],
-        rightRun: [...state.rightRun],
-        leftIndex: state.leftIndex,
-        rightIndex: state.rightIndex,
-        mergedCurrent: [...state.mergedCurrent],
-        leftItem: state.leftItem,
-        rightItem: state.rightItem,
-        comparisonsDone: state.comparisonsDone,
-        finished: state.finished,
-        finalRanking: cloneRanking(state.finalRanking),
-        tieGroupsData: state.tieGroups.exportData()
-      };
-    }
-
-    function restoreSorter(state, snapshot) {
-      state.queue = cloneRuns(snapshot.queue);
-      state.nextQueue = cloneRuns(snapshot.nextQueue);
-      state.currentMerge = snapshot.currentMerge
-        ? { left: [...snapshot.currentMerge.left], right: [...snapshot.currentMerge.right] }
-        : null;
-      state.leftRun = [...snapshot.leftRun];
-      state.rightRun = [...snapshot.rightRun];
-      state.leftIndex = snapshot.leftIndex;
-      state.rightIndex = snapshot.rightIndex;
-      state.mergedCurrent = [...snapshot.mergedCurrent];
-      state.leftItem = snapshot.leftItem;
-      state.rightItem = snapshot.rightItem;
-      state.comparisonsDone = snapshot.comparisonsDone;
-      state.finished = snapshot.finished;
-      state.finalRanking = cloneRanking(snapshot.finalRanking);
-      state.tieGroups.importData(snapshot.tieGroupsData);
-    }
-
-    function cloneRuns(runs) {
-      return runs.map(run => [...run]);
-    }
-
-    function cloneRanking(ranking) {
-      return ranking.map(group => ({
-        rank: group.rank,
-        label: group.label,
-        members: [...group.members]
-      }));
-    }
+    els.connectButton.addEventListener("click", setConnectedState);
+    els.copyStepsButton.addEventListener("click", copySteps);
+    els.launchButtons.forEach((button, index) => {
+      button.addEventListener("click", () => launchApp(button.dataset.app, index));
+    });
   </script>
 </body>
 </html>
