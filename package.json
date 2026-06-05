@@ -1,0 +1,11 @@
+{
+  "name": "airlink-controller-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "diagnose:network": "node scripts/network-diagnostics.js",
+    "check:network-diagnostics": "node --check scripts/network-diagnostics.js",
+    "advertise:airplay": "node scripts/airplay-mdns-advertise.js",
+    "check:airplay-advertise": "node --check scripts/airplay-mdns-advertise.js"
+  }
+}
